@@ -815,3 +815,20 @@ func (c *Client) NewGetFiatDepositWithdrawHistoryService() *GetFiatDepositWithdr
 func (c *Client) NewGetFiatPaymentHistoryService() *GetFiatPaymentHistoryService {
 	return &GetFiatPaymentHistoryService{c: c}
 }
+
+// Eran Endpoints:
+func (c *Client) NewFlexiblePositionService() *FlexiblePositionService {
+	return &FlexiblePositionService{c: c}
+}
+
+func (c *Client) NewRedeemFlexibleService() *RedeemFlexibleService {
+	return &RedeemFlexibleService{c: c}
+}
+
+func (c *Client) NewSimpleEarnFlexibleProductListService() *SimpleEarnFlexibleProductListService {
+	return &SimpleEarnFlexibleProductListService{c: c}
+}
+
+func (c *Client) NewSubscribeFlexibleService() *SubscribeFlexibleService {
+	return &SubscribeFlexibleService{c: c}
+}
