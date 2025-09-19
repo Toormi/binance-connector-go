@@ -832,3 +832,12 @@ func (c *Client) NewSimpleEarnFlexibleProductListService() *SimpleEarnFlexiblePr
 func (c *Client) NewSubscribeFlexibleService() *SubscribeFlexibleService {
 	return &SubscribeFlexibleService{c: c}
 }
+
+// Alpha Endpoints:
+func (c *Client) NewAlphaKlinesService() *AlphaKlinesService {
+	return &AlphaKlinesService{c: c}
+}
+
+func (c *Client) NewAlphaTokensService() *AlphaTokensService {
+	return &AlphaTokensService{c: c}
+}
