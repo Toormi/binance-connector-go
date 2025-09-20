@@ -51,7 +51,7 @@ func (s *AlphaKlinesService) Limit(limit int) *AlphaKlinesService {
 }
 
 // Do sends the request and returns the kline data or an error.
-func (s *AlphaKlinesService) Do(ctx context.Context) (res [][][]interface{}, err error) {
+func (s *AlphaKlinesService) Do(ctx context.Context) (res AlphaKlinesResponse, err error) {
 	r := &request{
 		method:   http.MethodGet,
 		endpoint: alphaKlinesEndpoint,
@@ -71,12 +71,11 @@ func (s *AlphaKlinesService) Do(ctx context.Context) (res [][][]interface{}, err
 
 	data, err := s.c.callAPI(ctx, r)
 	if err != nil {
-		return nil, err
+		return AlphaKlinesResponse{}, err
 	}
-	res = make([][][]interface{}, 0)
 	err = json.Unmarshal(data, &res)
 	if err != nil {
-		return nil, err
+		return AlphaKlinesResponse{}, err
 	}
 	return res, nil
 }
@@ -110,27 +109,85 @@ func (s *AlphaTokensService) Do(ctx context.Context) (res AlphaTokensResponse, e
 
 	data, err := s.c.callAPI(ctx, r)
 	if err != nil {
-		return nil, err
+		return AlphaTokensResponse{}, err
 	}
-	res = make(AlphaTokensResponse, 0)
 	err = json.Unmarshal(data, &res)
 	if err != nil {
-		return nil, err
+		return AlphaTokensResponse{}, err
 	}
 	return res, nil
 }
 
 // AlphaTokensResponse represents the response from the token list endpoint.
-type AlphaTokensResponse []TokenInfo
+type AlphaTokensResponse struct {
+	Code          string      `json:"code"`
+	Message       *string     `json:"message"`
+	MessageDetail *string     `json:"messageDetail"`
+	Data          []TokenInfo `json:"data"`
+}
 
 // TokenInfo represents a single token's information.
 type TokenInfo struct {
-	ContractAddress string `json:"contractAddress"`
-	BaseAsset       string `json:"baseAsset"`
-	QuoteAsset      string `json:"quoteAsset"`
-	Operator        string `json:"operator"`
-	TickSize        string `json:"tickSize"`
-	LotSize         string `json:"lotSize"`
-	CreateTime      int64  `json:"createTime"`
-	UpdateTime      int64  `json:"updateTime"`
+	TokenId           string `json:"tokenId"`
+	ChainId           string `json:"chainId"`
+	ChainIconUrl      string `json:"chainIconUrl"`
+	ChainName         string `json:"chainName"`
+	ContractAddress   string `json:"contractAddress"`
+	Name              string `json:"name"`
+	Symbol            string `json:"symbol"`
+	IconUrl           string `json:"iconUrl"`
+	Price             string `json:"price"`
+	PercentChange24h  string `json:"percentChange24h"`
+	Volume24h         string `json:"volume24h"`
+	MarketCap         string `json:"marketCap"`
+	Fdv               string `json:"fdv"`
+	Liquidity         string `json:"liquidity"`
+	TotalSupply       string `json:"totalSupply"`
+	CirculatingSupply string `json:"circulatingSupply"`
+	Holders           string `json:"holders"`
+	Decimals          int    `json:"decimals"`
+	ListingCex        bool   `json:"listingCex"`
+	HotTag            bool   `json:"hotTag"`
+	CexCoinName       string `json:"cexCoinName"`
+	CanTransfer       bool   `json:"canTransfer"`
+	Denomination      int    `json:"denomination"`
+	Offline           bool   `json:"offline"`
+	TradeDecimal      int    `json:"tradeDecimal"`
+	AlphaId           string `json:"alphaId"`
+	Offsell           bool   `json:"offsell"`
+	PriceHigh24h      string `json:"priceHigh24h"`
+	PriceLow24h       string `json:"priceLow24h"`
+	Count24h          string `json:"count24h"`
+	OnlineTge         bool   `json:"onlineTge"`
+	OnlineAirdrop     bool   `json:"onlineAirdrop"`
+	Score             int    `json:"score"`
+	CexOffDisplay     bool   `json:"cexOffDisplay"`
+	StockState        bool   `json:"stockState"`
+	ListingTime       int64  `json:"listingTime"`
+	MulPoint          int    `json:"mulPoint"`
 }
+
+// AlphaKlinesResponse represents the response from the klines endpoint.
+type AlphaKlinesResponse struct {
+	Code          string      `json:"code"`
+	Message       *string     `json:"message"`
+	MessageDetail *string     `json:"messageDetail"`
+	Success       bool        `json:"success"`
+	Data          []KlineData `json:"data"`
+}
+
+// KlineData represents a single kline/candlestick data point.
+// Each element corresponds to:
+// [0] Open time (millisecond timestamp)
+// [1] Open price
+// [2] High price
+// [3] Low price
+// [4] Close price
+// [5] Volume
+// [6] Close time (millisecond timestamp)
+// [7] Quote asset volume
+// [8] Number of trades
+// [9] Taker buy base asset volume
+// [10] Taker buy quote asset volume
+// [11] Ignore (static value 0)
+type KlineData []string
