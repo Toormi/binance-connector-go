@@ -51,7 +51,7 @@ func (s *AlphaKlinesService) Limit(limit int) *AlphaKlinesService {
 }
 
 // Do sends the request and returns the kline data or an error.
-func (s *AlphaKlinesService) Do(ctx context.Context) (res AlphaKlinesResponse, err error) {
+func (s *AlphaKlinesService) Do(ctx context.Context) (res *AlphaKlinesResponse, err error) {
 	r := &request{
 		method:   http.MethodGet,
 		endpoint: alphaKlinesEndpoint,
@@ -71,13 +71,87 @@ func (s *AlphaKlinesService) Do(ctx context.Context) (res AlphaKlinesResponse, e
 
 	data, err := s.c.callAPI(ctx, r)
 	if err != nil {
-		return AlphaKlinesResponse{}, err
+		return nil, err
 	}
-	err = json.Unmarshal(data, &res)
+	res = new(AlphaKlinesResponse)
+	err = json.Unmarshal(data, res)
 	if err != nil {
-		return AlphaKlinesResponse{}, err
+		return nil, err
 	}
 	return res, nil
+}
+
+const (
+	alphaTickerEndpoint = "/bapi/defi/v1/public/alpha-trade/ticker/24hr"
+)
+
+// AlphaTickerService fetches 24hr ticker price change statistics.
+type AlphaTickerService struct {
+	c      *Client
+	symbol *string
+}
+
+// Symbol sets the symbol parameter.
+func (s *AlphaTickerService) Symbol(symbol string) *AlphaTickerService {
+	s.symbol = &symbol
+	return s
+}
+
+// Do sends the request and returns the ticker data or an error.
+func (s *AlphaTickerService) Do(ctx context.Context) (res *AlphaTickerResponse, err error) {
+	r := &request{
+		method:   http.MethodGet,
+		endpoint: alphaTickerEndpoint,
+		secType:  secTypeNone,
+	}
+	if s.symbol != nil {
+		r.setParam("symbol", *s.symbol)
+	}
+
+	data, err := s.c.callAPI(ctx, r)
+	if err != nil {
+		return nil, err
+	}
+	res = new(AlphaTickerResponse)
+	err = json.Unmarshal(data, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// AlphaTickerResponse represents the response from the ticker endpoint.
+type AlphaTickerResponse struct {
+	Code          string            `json:"code"`
+	Message       *string           `json:"message"`
+	MessageDetail *string           `json:"messageDetail"`
+	Success       bool              `json:"success"`
+	Data          []AlphaTickerData `json:"data"`
+}
+
+// AlphaTickerData represents a single ticker's data.
+type AlphaTickerData struct {
+	Symbol             string `json:"symbol"`
+	PriceChange        string `json:"priceChange"`
+	PriceChangePercent string `json:"priceChangePercent"`
+	WeightedAvgPrice   string `json:"weightedAvgPrice"`
+	PrevClosePrice     string `json:"prevClosePrice"`
+	LastPrice          string `json:"lastPrice"`
+	LastQty            string `json:"lastQty"`
+	BidPrice           string `json:"bidPrice"`
+	BidQty             string `json:"bidQty"`
+	AskPrice           string `json:"askPrice"`
+	AskQty             string `json:"askQty"`
+	OpenPrice          string `json:"openPrice"`
+	HighPrice          string `json:"highPrice"`
+	LowPrice           string `json:"lowPrice"`
+	Volume             string `json:"volume"`
+	QuoteVolume        string `json:"quoteVolume"`
+	OpenTime           int64  `json:"openTime"`
+	CloseTime          int64  `json:"closeTime"`
+	FirstId            int64  `json:"firstId"`
+	LastId             int64  `json:"lastId"`
+	Count              int64  `json:"count"`
 }
 
 const (
@@ -97,7 +171,7 @@ func (s *AlphaTokensService) Limit(limit int) *AlphaTokensService {
 }
 
 // Do sends the request and returns the token list or an error.
-func (s *AlphaTokensService) Do(ctx context.Context) (res AlphaTokensResponse, err error) {
+func (s *AlphaTokensService) Do(ctx context.Context) (res *AlphaTokensResponse, err error) {
 	r := &request{
 		method:   http.MethodGet,
 		endpoint: alphaTokensEndpoint,
@@ -109,11 +183,12 @@ func (s *AlphaTokensService) Do(ctx context.Context) (res AlphaTokensResponse, e
 
 	data, err := s.c.callAPI(ctx, r)
 	if err != nil {
-		return AlphaTokensResponse{}, err
+		return nil, err
 	}
-	err = json.Unmarshal(data, &res)
+	res = new(AlphaTokensResponse)
+	err = json.Unmarshal(data, res)
 	if err != nil {
-		return AlphaTokensResponse{}, err
+		return nil, err
 	}
 	return res, nil
 }

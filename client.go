@@ -841,3 +841,7 @@ func (c *Client) NewAlphaKlinesService() *AlphaKlinesService {
 func (c *Client) NewAlphaTokensService() *AlphaTokensService {
 	return &AlphaTokensService{c: c}
 }
+
+func (c *Client) NewAlphaTickerService() *AlphaTickerService {
+	return &AlphaTickerService{c: c}
+}
