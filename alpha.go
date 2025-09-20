@@ -82,7 +82,7 @@ func (s *AlphaKlinesService) Do(ctx context.Context) (res *AlphaKlinesResponse, 
 }
 
 const (
-	alphaTickerEndpoint = "/bapi/defi/v1/public/alpha-trade/ticker/24hr"
+	alphaTickerEndpoint = "/bapi/defi/v1/public/alpha-trade/ticker"
 )
 
 // AlphaTickerService fetches 24hr ticker price change statistics.
