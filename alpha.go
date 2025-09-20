@@ -122,11 +122,11 @@ func (s *AlphaTickerService) Do(ctx context.Context) (res *AlphaTickerResponse, 
 
 // AlphaTickerResponse represents the response from the ticker endpoint.
 type AlphaTickerResponse struct {
-	Code          string            `json:"code"`
-	Message       *string           `json:"message"`
-	MessageDetail *string           `json:"messageDetail"`
-	Success       bool              `json:"success"`
-	Data          []AlphaTickerData `json:"data"`
+	Code          string          `json:"code"`
+	Message       *string         `json:"message"`
+	MessageDetail *string         `json:"messageDetail"`
+	Success       bool            `json:"success"`
+	Data          AlphaTickerData `json:"data"`
 }
 
 // AlphaTickerData represents a single ticker's data.
@@ -135,13 +135,8 @@ type AlphaTickerData struct {
 	PriceChange        string `json:"priceChange"`
 	PriceChangePercent string `json:"priceChangePercent"`
 	WeightedAvgPrice   string `json:"weightedAvgPrice"`
-	PrevClosePrice     string `json:"prevClosePrice"`
 	LastPrice          string `json:"lastPrice"`
 	LastQty            string `json:"lastQty"`
-	BidPrice           string `json:"bidPrice"`
-	BidQty             string `json:"bidQty"`
-	AskPrice           string `json:"askPrice"`
-	AskQty             string `json:"askQty"`
 	OpenPrice          string `json:"openPrice"`
 	HighPrice          string `json:"highPrice"`
 	LowPrice           string `json:"lowPrice"`

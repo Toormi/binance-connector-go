@@ -292,31 +292,24 @@ func (s *alphaTestSuite) TestAlphaTicker() {
 		"message": null,
 		"messageDetail": null,
 		"success": true,
-		"data": [
-			{
-				"symbol": "ETHBTC",
-				"priceChange": "0.00043",
-				"priceChangePercent": "0.724",
-				"weightedAvgPrice": "0.05978",
-				"prevClosePrice": "0.05941",
-				"lastPrice": "0.05984",
-				"lastQty": "0.01",
-				"bidPrice": "0.05984",
-				"bidQty": "0.01",
-				"askPrice": "0.05985",
-				"askQty": "0.01",
-				"openPrice": "0.05941",
-				"highPrice": "0.06011",
-				"lowPrice": "0.05933",
-				"volume": "100.0",
-				"quoteVolume": "5.978",
-				"openTime": 1758348000000,
-				"closeTime": 1758351599999,
-				"firstId": 1,
-				"lastId": 100,
-				"count": 100
-			}
-		]
+		"data": {
+			"symbol": "ALPHA_175USDT",
+			"priceChange": "-0.00022791",
+			"priceChangePercent": "-5.885",
+			"weightedAvgPrice": "0.00384878",
+			"lastPrice": "0.00364502",
+			"lastQty": "311.97000000",
+			"openPrice": "0.00387293",
+			"highPrice": "0.00401127",
+			"lowPrice": "0.00360000",
+			"volume": "3129500.16000000",
+			"quoteVolume": "12044.75859580",
+			"openTime": 1758288480000,
+			"closeTime": 1758373411267,
+			"firstId": 83038,
+			"lastId": 83221,
+			"count": 220
+		}
 	}`)
 	s.mockDo(data, nil)
 	defer s.assertDo()
@@ -327,30 +320,24 @@ func (s *alphaTestSuite) TestAlphaTicker() {
 	s.r().Nil(res.Message)
 	s.r().Nil(res.MessageDetail)
 	s.r().Equal(true, res.Success)
-	s.r().Len(res.Data, 1)
 
-	ticker := res.Data[0]
-	s.r().Equal("ETHBTC", ticker.Symbol)
-	s.r().Equal("0.00043", ticker.PriceChange)
-	s.r().Equal("0.724", ticker.PriceChangePercent)
-	s.r().Equal("0.05978", ticker.WeightedAvgPrice)
-	s.r().Equal("0.05941", ticker.PrevClosePrice)
-	s.r().Equal("0.05984", ticker.LastPrice)
-	s.r().Equal("0.01", ticker.LastQty)
-	s.r().Equal("0.05984", ticker.BidPrice)
-	s.r().Equal("0.01", ticker.BidQty)
-	s.r().Equal("0.05985", ticker.AskPrice)
-	s.r().Equal("0.01", ticker.AskQty)
-	s.r().Equal("0.05941", ticker.OpenPrice)
-	s.r().Equal("0.06011", ticker.HighPrice)
-	s.r().Equal("0.05933", ticker.LowPrice)
-	s.r().Equal("100.0", ticker.Volume)
-	s.r().Equal("5.978", ticker.QuoteVolume)
-	s.r().Equal(int64(1758348000000), ticker.OpenTime)
-	s.r().Equal(int64(1758351599999), ticker.CloseTime)
-	s.r().Equal(int64(1), ticker.FirstId)
-	s.r().Equal(int64(100), ticker.LastId)
-	s.r().Equal(int64(100), ticker.Count)
+	ticker := res.Data
+	s.r().Equal("ALPHA_175USDT", ticker.Symbol)
+	s.r().Equal("-0.00022791", ticker.PriceChange)
+	s.r().Equal("-5.885", ticker.PriceChangePercent)
+	s.r().Equal("0.00384878", ticker.WeightedAvgPrice)
+	s.r().Equal("0.00364502", ticker.LastPrice)
+	s.r().Equal("311.97000000", ticker.LastQty)
+	s.r().Equal("0.00387293", ticker.OpenPrice)
+	s.r().Equal("0.00401127", ticker.HighPrice)
+	s.r().Equal("0.00360000", ticker.LowPrice)
+	s.r().Equal("3129500.16000000", ticker.Volume)
+	s.r().Equal("12044.75859580", ticker.QuoteVolume)
+	s.r().Equal(int64(1758288480000), ticker.OpenTime)
+	s.r().Equal(int64(1758373411267), ticker.CloseTime)
+	s.r().Equal(int64(83038), ticker.FirstId)
+	s.r().Equal(int64(83221), ticker.LastId)
+	s.r().Equal(int64(220), ticker.Count)
 }
 
 func (s *alphaTestSuite) TestAlphaTickerWithSymbol() {
@@ -359,31 +346,24 @@ func (s *alphaTestSuite) TestAlphaTickerWithSymbol() {
 		"message": null,
 		"messageDetail": null,
 		"success": true,
-		"data": [
-			{
-				"symbol": "BTCUSDT",
-				"priceChange": "1000.0",
-				"priceChangePercent": "1.0",
-				"weightedAvgPrice": "100000.0",
-				"prevClosePrice": "99000.0",
-				"lastPrice": "100000.0",
-				"lastQty": "0.1",
-				"bidPrice": "100000.0",
-				"bidQty": "0.1",
-				"askPrice": "100001.0",
-				"askQty": "0.1",
-				"openPrice": "99000.0",
-				"highPrice": "101000.0",
-				"lowPrice": "98000.0",
-				"volume": "1000.0",
-				"quoteVolume": "100000000.0",
-				"openTime": 1758348000000,
-				"closeTime": 1758351599999,
-				"firstId": 1,
-				"lastId": 1000,
-				"count": 1000
-			}
-		]
+		"data": {
+			"symbol": "BTCUSDT",
+			"priceChange": "1000.0",
+			"priceChangePercent": "1.0",
+			"weightedAvgPrice": "100000.0",
+			"lastPrice": "100000.0",
+			"lastQty": "0.1",
+			"openPrice": "99000.0",
+			"highPrice": "101000.0",
+			"lowPrice": "98000.0",
+			"volume": "1000.0",
+			"quoteVolume": "100000000.0",
+			"openTime": 1758348000000,
+			"closeTime": 1758351599999,
+			"firstId": 1,
+			"lastId": 1000,
+			"count": 1000
+		}
 	}`)
 	s.mockDo(data, nil)
 	defer s.assertDo()
@@ -393,6 +373,35 @@ func (s *alphaTestSuite) TestAlphaTickerWithSymbol() {
 	s.r().NoError(err)
 	s.r().Equal("000000", res.Code)
 	s.r().Equal(true, res.Success)
-	s.r().Len(res.Data, 1)
-	s.r().Equal(symbol, res.Data[0].Symbol)
+	s.r().Equal(symbol, res.Data.Symbol)
+}
+
+func (s *alphaTestSuite) TestAlphaTickerError() {
+	data := []byte(`{
+		"code": "400001",
+		"message": "Invalid symbol",
+		"messageDetail": "The symbol parameter is invalid",
+		"success": false,
+		"data": null
+	}`)
+	s.mockDo(data, nil)
+	defer s.assertDo()
+
+	res, err := s.client.NewAlphaTickerService().Symbol("INVALID").Do(newContext())
+	s.r().NoError(err)
+	s.r().Equal("400001", res.Code)
+	s.r().NotNil(res.Message)
+	s.r().Equal("Invalid symbol", *res.Message)
+	s.r().NotNil(res.MessageDetail)
+	s.r().Equal("The symbol parameter is invalid", *res.MessageDetail)
+	s.r().Equal(false, res.Success)
+}
+
+func (s *alphaTestSuite) TestAlphaTickerJSONUnmarshalError() {
+	data := []byte(`invalid json`)
+	s.mockDo(data, nil)
+	defer s.assertDo()
+
+	_, err := s.client.NewAlphaTickerService().Do(newContext())
+	s.r().Error(err)
 }
