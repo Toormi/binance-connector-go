@@ -2,8 +2,6 @@
 Binance Spot WebSocket API
 
 OpenAPI Specifications for the Binance Spot WebSocket API  API documents:   - [Github web-socket-api documentation file](https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-api.md)   - [General API information for web-socket-api on website](https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information)
-
-API version: 1.0.0
 */
 
 package binancespotwebsocketapi
@@ -12,7 +10,7 @@ import (
 	"strconv"
 
 	"github.com/binance/binance-connector-go/clients/spot/src/websocketapi/models"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // UserDataStreamAPIService UserDataStreamAPI Service
@@ -155,7 +153,7 @@ func (a *UserDataStreamAPIService) UserDataStreamSubscribeExecute(r ApiUserDataS
 		ws := a.Ws
 		stream, err := common.CreateStreamHandler[models.UserDataStreamEventsResponse](&common.StreamHandlerWrapper{
 			WebsocketAPI: ws,
-		}, streamId, []string{common.GenerateUUID()})
+		}, streamId, []any{common.GenerateUUID()}, false)
 
 		if err != nil {
 			return nil, nil, nil, err
@@ -174,11 +172,18 @@ func (a *UserDataStreamAPIService) UserDataStreamSubscribeExecute(r ApiUserDataS
 type ApiUserDataStreamSubscribeSignatureRequest struct {
 	ApiService *UserDataStreamAPIService
 	id         *string
+	recvWindow *float32
 }
 
 // Unique WebSocket request ID.
 func (r ApiUserDataStreamSubscribeSignatureRequest) Id(id string) ApiUserDataStreamSubscribeSignatureRequest {
 	r.id = &id
+	return r
+}
+
+// The value cannot be greater than &#x60;60000&#x60;. &lt;br&gt; Supports up to three decimal places of precision (e.g., 6000.346) so that microseconds may be specified.
+func (r ApiUserDataStreamSubscribeSignatureRequest) RecvWindow(recvWindow float32) ApiUserDataStreamSubscribeSignatureRequest {
+	r.recvWindow = &recvWindow
 	return r
 }
 
@@ -192,7 +197,7 @@ UserDataStreamSubscribeSignature WebSocket Subscribe to User Data Stream through
 
 https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/user-Data-Stream-requests#subscribe-to-user-data-stream-through-signature-subscription-user_stream
 
-@param id Unique WebSocket request ID.
+@param id Unique WebSocket request ID.	@param recvWindow The value cannot be greater than `60000`. <br> Supports up to three decimal places of precision (e.g., 6000.346) so that microseconds may be specified.
 @return ApiUserDataStreamSubscribeSignatureRequest
 */
 func (a *UserDataStreamAPIService) UserDataStreamSubscribeSignature() ApiUserDataStreamSubscribeSignatureRequest {
@@ -209,6 +214,9 @@ func (a *UserDataStreamAPIService) UserDataStreamSubscribeSignatureExecute(r Api
 
 	if r.id != nil {
 		localVarQueryParams["id"] = *r.id
+	}
+	if r.recvWindow != nil {
+		localVarQueryParams["recvWindow"] = *r.recvWindow
 	}
 
 	localPayload := map[string]any{
@@ -238,7 +246,7 @@ func (a *UserDataStreamAPIService) UserDataStreamSubscribeSignatureExecute(r Api
 		ws := a.Ws
 		stream, err := common.CreateStreamHandler[models.UserDataStreamEventsResponse](&common.StreamHandlerWrapper{
 			WebsocketAPI: ws,
-		}, streamId, []string{common.GenerateUUID()})
+		}, streamId, []any{common.GenerateUUID()}, false)
 
 		if err != nil {
 			return nil, nil, nil, err

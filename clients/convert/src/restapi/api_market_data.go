@@ -2,8 +2,6 @@
 Binance Convert REST API
 
 OpenAPI Specification for the Binance Convert REST API
-
-API version: 1.0.0
 */
 
 package binanceconvertrestapi
@@ -14,7 +12,7 @@ import (
 	"net/url"
 
 	"github.com/binance/binance-connector-go/clients/convert/src/restapi/models"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // MarketDataAPIService MarketDataAPI Service
@@ -78,7 +76,7 @@ func (a *MarketDataAPIService) ListAllConvertPairsExecute(r ApiListAllConvertPai
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "toAsset", r.toAsset, "form", "")
 	}
 
-	resp, err := SendRequest[models.ListAllConvertPairsResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.ListAllConvertPairsResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -133,7 +131,7 @@ func (a *MarketDataAPIService) QueryOrderQuantityPrecisionPerAssetExecute(r ApiQ
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.QueryOrderQuantityPrecisionPerAssetResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.QueryOrderQuantityPrecisionPerAssetResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}

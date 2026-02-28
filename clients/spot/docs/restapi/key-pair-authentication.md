@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"os"
 
-	client "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	client "github.com/binance/binance-connector-go/clients/spot/src"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {

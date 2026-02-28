@@ -2,8 +2,6 @@
 Binance Spot REST API
 
 OpenAPI Specifications for the Binance Spot REST API  API documents:   - [Github rest-api documentation file](https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md)   - [General API information for rest-api on website](https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-api-information)
-
-API version: 1.0.0
 */
 
 package models
@@ -11,7 +9,7 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // checks if the MaxNumOrderAmendsFilter type satisfies the MappedNullable interface at compile time

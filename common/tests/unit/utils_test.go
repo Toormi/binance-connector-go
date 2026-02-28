@@ -15,11 +15,11 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
-// Mock type implementing MappedNullable
 type mockMappedNullable struct {
 	Data map[string]interface{}
 	Err  error
@@ -31,10 +31,10 @@ func (m mockMappedNullable) ToMap() (map[string]interface{}, error) {
 
 func TestParameterAddToHeaderOrQuery_BasicTypes(t *testing.T) {
 	tests := []struct {
-		name           string
-		obj            interface{}
+		name		   string
+		obj			interface{}
 		expectedValue  string
-		expectedKey    string
+		expectedKey	string
 		collectionType string
 	}{
 		{"int", 42, "42", "intKey", ""},
@@ -78,7 +78,7 @@ func TestParameterAddToHeaderOrQuery_StructMappedNullable(t *testing.T) {
 	if result.Data["field1"] != "value1" {
 		t.Errorf("Expected field1=value1, got %v", result.Data["field1"])
 	}
-	if result.Data["field2"] != float64(123) { // JSON numbers become float64
+	if result.Data["field2"] != float64(123) {
 		t.Errorf("Expected field2=123, got %v", result.Data["field2"])
 	}
 }
@@ -348,7 +348,7 @@ func TestParseRateLimitHeaders_RetryAfter(t *testing.T) {
 
 func TestParseRateLimitHeaders_InvalidCount(t *testing.T) {
 	h := http.Header{}
-	h.Set("X-MBX-USED-WEIGHT-1m", "abc") // invalid number
+	h.Set("X-MBX-USED-WEIGHT-1m", "abc")
 	rates, err := common.ParseRateLimitHeaders(h)
 	if err != nil {
 		t.Fatal(err)
@@ -392,12 +392,40 @@ func TestSendRequest_Success(t *testing.T) {
 
 	cfg := &common.ConfigurationRestAPI{}
 
-	resp, err := common.SendRequest[SampleResponse](context.Background(), server.URL, "GET", url.Values{}, nil, cfg)
+	resp, err := common.SendRequest[SampleResponse](context.Background(), server.URL, "GET", url.Values{}, nil, cfg, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if resp.Status != 200 || resp.Data.Message != "ok" {
+		t.Errorf("Unexpected response: %+v", resp)
+	}
+}
+
+func TestSendRequest_Signing(t *testing.T) {
+	cfg := &common.ConfigurationRestAPI{
+		ApiKey:	"apikey123",
+		ApiSecret: "secretkey456",
+	}
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query()
+		signature := query.Get("signature")
+		if signature == "" {
+			t.Errorf("Expected signature parameter to be set")
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+		if _, err := fmt.Fprintln(w, `{"message":"signed"}`); err != nil {
+			t.Fatal(err)
+		}
+	}
+	server := httptest.NewServer(http.HandlerFunc(handler))
+	defer server.Close()
+	resp, err := common.SendRequest[SampleResponse](context.Background(), server.URL, "GET", url.Values{}, nil, cfg, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Status != 200 || resp.Data.Message != "signed" {
 		t.Errorf("Unexpected response: %+v", resp)
 	}
 }
@@ -416,12 +444,11 @@ func TestSendRequest_RetryLogic(t *testing.T) {
 		Backoff: 0,
 	}
 
-	// Mock retry logic
 	originalShouldRetry = common.ShouldRetryRequest
 	common.ShouldRetryRequest = mockShouldRetry
 	defer func() { common.ShouldRetryRequest = originalShouldRetry }()
 
-	resp, err := common.SendRequest[SampleResponse](context.Background(), server.URL, "GET", url.Values{}, nil, cfg)
+	resp, err := common.SendRequest[SampleResponse](context.Background(), server.URL, "GET", url.Values{}, nil, cfg, false)
 	if err == nil {
 		t.Fatalf("Expected error for server failure")
 	}
@@ -444,7 +471,7 @@ func TestSendRequest_HTTPErrorStatus(t *testing.T) {
 
 	cfg := &common.ConfigurationRestAPI{}
 
-	resp, err := common.SendRequest[SampleResponse](context.Background(), server.URL, "GET", url.Values{}, nil, cfg)
+	resp, err := common.SendRequest[SampleResponse](context.Background(), server.URL, "GET", url.Values{}, nil, cfg, false)
 	if err == nil {
 		t.Fatalf("Expected error for 404")
 	}
@@ -476,13 +503,99 @@ func TestSendRequest_ContentEncodingGzip(t *testing.T) {
 
 	cfg := &common.ConfigurationRestAPI{}
 
-	resp, err := common.SendRequest[SampleResponse](context.Background(), server.URL, "GET", url.Values{}, nil, cfg)
+	resp, err := common.SendRequest[SampleResponse](context.Background(), server.URL, "GET", url.Values{}, nil, cfg, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if resp.Data.Message != "compressed" {
 		t.Errorf("Expected 'compressed', got %q", resp.Data.Message)
+	}
+}
+
+func TestSleepContext_CompletesNormally(t *testing.T) {
+	ctx := context.Background()
+	duration := 50 * time.Millisecond
+
+	start := time.Now()
+	err := common.SleepContext(ctx, duration)
+	elapsed := time.Since(start)
+
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+
+	if elapsed < duration {
+		t.Errorf("Expected sleep to last at least %v, but it lasted %v", duration, elapsed)
+	}
+}
+
+func TestSleepContext_CanceledContext(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	err := common.SleepContext(ctx, 1*time.Second)
+
+	if err != context.Canceled {
+		t.Errorf("Expected context.Canceled error, got %v", err)
+	}
+}
+
+func TestSleepContext_CanceledDuringSleep(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	
+	go func() {
+		time.Sleep(50 * time.Millisecond)
+		cancel()
+	}()
+
+	start := time.Now()
+	err := common.SleepContext(ctx, 1*time.Second)
+	elapsed := time.Since(start)
+
+	if err != context.Canceled {
+		t.Errorf("Expected context.Canceled error, got %v", err)
+	}
+
+	if elapsed >= 1*time.Second {
+		t.Errorf("Expected sleep to be interrupted before 1 second, but it lasted %v", elapsed)
+	}
+}
+
+func TestSleepContext_ZeroDuration(t *testing.T) {
+	ctx := context.Background()
+
+	err := common.SleepContext(ctx, 0)
+
+	if err != nil {
+		t.Errorf("Expected no error with zero duration, got %v", err)
+	}
+}
+
+func TestSleepContext_NegativeDuration(t *testing.T) {
+	ctx := context.Background()
+
+	err := common.SleepContext(ctx, -1*time.Second)
+
+	if err != nil {
+		t.Errorf("Expected no error with negative duration, got %v", err)
+	}
+}
+
+func TestSleepContext_TimeoutContext(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	start := time.Now()
+	err := common.SleepContext(ctx, 1*time.Second)
+	elapsed := time.Since(start)
+
+	if err != context.DeadlineExceeded {
+		t.Errorf("Expected context.DeadlineExceeded error, got %v", err)
+	}
+
+	if elapsed >= 1*time.Second {
+		t.Errorf("Expected sleep to be interrupted by timeout, but it lasted %v", elapsed)
 	}
 }
 
@@ -493,7 +606,7 @@ func TestPrepareRequest_BasicHeadersAndQuery(t *testing.T) {
 	query := url.Values{}
 	query.Set("param", "value")
 
-	req, err := common.PrepareRequest(context.Background(), "https://example.com/test", "GET", map[string]string{}, query, nil, cfg)
+	req, err := common.PrepareRequest(context.Background(), "https://example.com/test", "GET", map[string]string{}, query, nil, cfg, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -507,12 +620,38 @@ func TestPrepareRequest_BasicHeadersAndQuery(t *testing.T) {
 	}
 }
 
+func TestPrepareRequest_Signing(t *testing.T) {
+	cfg := &common.ConfigurationRestAPI{
+		ApiKey:	"apikey123",
+		ApiSecret: "secretkey456",
+	}
+	query := url.Values{}
+	query.Set("param", "value")
+
+	req, err := common.PrepareRequest(context.Background(), "https://example.com/test", "GET", map[string]string{}, query, nil, cfg, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if req.Header.Get("X-MBX-APIKEY") != "apikey123" {
+		t.Errorf("Expected API key header set")
+	}
+
+	if req.URL.Query().Get("param") != "value" {
+		t.Errorf("Expected query param preserved")
+	}
+
+	if req.URL.Query().Get("signature") == "" {
+		t.Errorf("Expected signature parameter to be set")
+	}
+}
+
 func TestPrepareRequest_CustomHeadersAndCompression(t *testing.T) {
 	cfg := &common.ConfigurationRestAPI{
 		CustomHeaders: map[string]string{"X-Custom": "abc"},
 		Compression:   true,
 	}
-	req, err := common.PrepareRequest(context.Background(), "https://example.com", "GET", map[string]string{}, url.Values{}, nil, cfg)
+	req, err := common.PrepareRequest(context.Background(), "https://example.com", "GET", map[string]string{}, url.Values{}, nil, cfg, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -533,7 +672,7 @@ func TestPrepareRequest_WithURLValuesBody(t *testing.T) {
 	body.Set("key2", "value2")
 
 	req, err := common.PrepareRequest(context.Background(), "https://example.com", "POST",
-		map[string]string{}, url.Values{}, body, cfg)
+		map[string]string{}, url.Values{}, body, cfg, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -541,10 +680,6 @@ func TestPrepareRequest_WithURLValuesBody(t *testing.T) {
 	if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
 		t.Errorf("Expected Content-Type header to be set")
 	}
-
-	// Verify the body is included in paramsToSign
-	// We can't directly check paramsToSign as it's not returned, but we can verify the behavior
-	// by checking that the request would be properly signed if ApiSecret was set
 }
 
 func TestPrepareRequest_WithMapStringStringBody(t *testing.T) {
@@ -555,7 +690,7 @@ func TestPrepareRequest_WithMapStringStringBody(t *testing.T) {
 	}
 
 	req, err := common.PrepareRequest(context.Background(), "https://example.com", "POST",
-		map[string]string{}, url.Values{}, body, cfg)
+		map[string]string{}, url.Values{}, body, cfg, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -574,7 +709,7 @@ func TestPrepareRequest_WithMapStringInterfaceBody(t *testing.T) {
 	}
 
 	req, err := common.PrepareRequest(context.Background(), "https://example.com", "POST",
-		map[string]string{}, url.Values{}, body, cfg)
+		map[string]string{}, url.Values{}, body, cfg, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -588,14 +723,14 @@ func TestPrepareRequest_WithJSONBody(t *testing.T) {
 	cfg := &common.ConfigurationRestAPI{}
 	body := struct {
 		Key1 string `json:"key1"`
-		Key2 int    `json:"key2"`
+		Key2 int	`json:"key2"`
 	}{
 		Key1: "value1",
 		Key2: 123,
 	}
 
 	req, err := common.PrepareRequest(context.Background(), "https://example.com", "POST",
-		map[string]string{}, url.Values{}, body, cfg)
+		map[string]string{}, url.Values{}, body, cfg, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -609,7 +744,7 @@ func TestPrepareRequest_WithNilBody(t *testing.T) {
 	cfg := &common.ConfigurationRestAPI{}
 
 	req, err := common.PrepareRequest(context.Background(), "https://example.com", "GET",
-		map[string]string{}, url.Values{}, nil, cfg)
+		map[string]string{}, url.Values{}, nil, cfg, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -627,7 +762,7 @@ func TestPrepareRequest_WithQueryAndBody(t *testing.T) {
 	body.Set("bodyParam", "bodyValue")
 
 	req, err := common.PrepareRequest(context.Background(), "https://example.com", "POST",
-		map[string]string{}, query, body, cfg)
+		map[string]string{}, query, body, cfg, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -639,4 +774,51 @@ func TestPrepareRequest_WithQueryAndBody(t *testing.T) {
 	if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
 		t.Errorf("Expected Content-Type header to be set")
 	}
+}
+
+func TestGenerateUUID(t *testing.T) {
+	t.Run("returns non-empty string", func(t *testing.T) {
+		uuid := common.GenerateUUID()
+		if len(uuid) == 0 {
+			t.Error("GenerateUUID() returned empty string")
+		}
+	})
+
+	t.Run("returns valid UTF-8 string", func(t *testing.T) {
+		uuid := common.GenerateUUID()
+		if !utf8.ValidString(uuid) {
+			t.Error("GenerateUUID() returned invalid UTF-8 string")
+		}
+	})
+
+	t.Run("returns string of expected length", func(t *testing.T) {
+		uuid := common.GenerateUUID()
+
+		if len(uuid) != 36 {
+			t.Errorf("GenerateUUID() returned string of length %d, expected 36", len(uuid))
+		}
+	})
+
+	t.Run("returns different values on subsequent calls", func(t *testing.T) {
+		first := common.GenerateUUID()
+		second := common.GenerateUUID()
+		if first == second {
+			t.Error("GenerateUUID() returned same value on subsequent calls")
+		}
+	})
+}
+
+func TestGenerateIntUUID(t *testing.T) {
+	t.Run("returns a value", func(t *testing.T) {
+		uuid := common.GenerateIntUUID()
+		_ = uuid
+	})
+
+	t.Run("returns different values on subsequent calls", func(t *testing.T) {
+		first := common.GenerateIntUUID()
+		second := common.GenerateIntUUID()
+		if first == second {
+			t.Error("GenerateIntUUID() returned same value on subsequent calls")
+		}
+	})
 }

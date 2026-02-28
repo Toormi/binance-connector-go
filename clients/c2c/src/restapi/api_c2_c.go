@@ -2,8 +2,6 @@
 Binance C2C REST API
 
 OpenAPI Specification for the Binance C2C REST API
-
-API version: 1.0.0
 */
 
 package binancec2crestapi
@@ -14,7 +12,7 @@ import (
 	"net/url"
 
 	"github.com/binance/binance-connector-go/clients/c2c/src/restapi/models"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // C2CAPIService C2CAPI Service
@@ -119,7 +117,7 @@ func (a *C2CAPIService) GetC2CTradeHistoryExecute(r ApiGetC2CTradeHistoryRequest
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.GetC2CTradeHistoryResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.GetC2CTradeHistoryResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}

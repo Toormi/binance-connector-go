@@ -2,8 +2,6 @@
 Binance Pay REST API
 
 OpenAPI Specification for the Binance Pay REST API
-
-API version: 1.0.0
 */
 
 package binancepayrestapi
@@ -14,7 +12,7 @@ import (
 	"net/url"
 
 	"github.com/binance/binance-connector-go/clients/pay/src/restapi/models"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // PayAPIService PayAPI Service
@@ -97,7 +95,7 @@ func (a *PayAPIService) GetPayTradeHistoryExecute(r ApiGetPayTradeHistoryRequest
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.GetPayTradeHistoryResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.GetPayTradeHistoryResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}

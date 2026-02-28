@@ -2,8 +2,6 @@
 Binance Wallet REST API
 
 OpenAPI Specification for the Binance Wallet REST API
-
-API version: 1.0.0
 */
 
 package binancewalletrestapi
@@ -14,7 +12,7 @@ import (
 	"net/url"
 
 	"github.com/binance/binance-connector-go/clients/wallet/src/restapi/models"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // OthersAPIService OthersAPI Service
@@ -66,7 +64,7 @@ func (a *OthersAPIService) GetSymbolsDelistScheduleForSpotExecute(r ApiGetSymbol
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.GetSymbolsDelistScheduleForSpotResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.GetSymbolsDelistScheduleForSpotResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -109,7 +107,7 @@ func (a *OthersAPIService) SystemStatusExecute(r ApiSystemStatusRequest) (*commo
 	localVarQueryParams := url.Values{}
 	localVarBodyParameters := make(map[string]interface{})
 
-	resp, err := SendRequest[models.SystemStatusResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.SystemStatusResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}

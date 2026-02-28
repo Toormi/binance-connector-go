@@ -6,7 +6,7 @@ import (
 	"log"
 
 	client "github.com/binance/binance-connector-go/clients/wallet"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func SubmitDepositQuestionnaire() {
 	apiClient := client.NewBinanceWalletClient(
 		client.WithRestAPI(configuration),
 	)
-	resp, err := apiClient.RestApi.TravelRuleAPI.SubmitDepositQuestionnaire(context.Background()).SubAccountId("1").DepositId("1").Questionnaire("questionnaire_example").BeneficiaryPii("beneficiaryPii_example").Signature("signature_example").Execute()
+	resp, err := apiClient.RestApi.TravelRuleAPI.SubmitDepositQuestionnaire(context.Background()).SubAccountId("1").DepositId(1).Questionnaire("questionnaire_example").BeneficiaryPii("beneficiaryPii_example").Signature("signature_example").Execute()
 	if err != nil {
 		log.Println(err)
 		return

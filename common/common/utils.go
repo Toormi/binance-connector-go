@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	randpkg "math/rand/v2"
 	"net"
 	"net/http"
 	"net/url"
@@ -407,6 +408,38 @@ func ParseRateLimitHeaders(header http.Header) ([]RateLimit, error) {
 	return rateLimits, nil
 }
 
+// SleepContext pauses the execution for the specified duration or until the context is done.
+//
+// @param ctx The context to observe for cancellation.
+// @param duration The duration to sleep.
+// @return An error if the context is done before the duration elapses.
+func SleepContext(ctx context.Context, duration time.Duration) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
+	if duration <= 0 {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			return nil
+		}
+	}
+
+	timer := time.NewTimer(duration)
+	defer timer.Stop()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
+}
+
 // SendRequest sends an HTTP request and handles retries, response decoding, and error handling.
 //
 // @param ctx The context for the request.
@@ -414,8 +447,9 @@ func ParseRateLimitHeaders(header http.Header) ([]RateLimit, error) {
 // @param method The HTTP method (GET, POST, etc.).
 // @param queryParams The query parameters for the request.
 // @param cfg The configuration containing API keys, secrets, and other settings.
+// @param signed A boolean indicating whether the request requires signing.
 // @return The response from the REST API or an error if the request fails.
-func SendRequest[T any](ctx context.Context, path string, method string, queryParams url.Values, bodyParams interface{}, cfg *ConfigurationRestAPI) (*RestApiResponse[T], error) {
+func SendRequest[T any](ctx context.Context, path string, method string, queryParams url.Values, bodyParams interface{}, cfg *ConfigurationRestAPI, signed bool) (*RestApiResponse[T], error) {
 	var (
 		localVarHeaderParams     = make(map[string]string)
 		localVarHTTPContentTypes = []string{}
@@ -426,7 +460,7 @@ func SendRequest[T any](ctx context.Context, path string, method string, queryPa
 		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
 	}
 
-	req, err := PrepareRequest(ctx, path, method, localVarHeaderParams, queryParams, bodyParams, cfg)
+	req, err := PrepareRequest(ctx, path, method, localVarHeaderParams, queryParams, bodyParams, cfg, signed)
 	if err != nil {
 		return &RestApiResponse[T]{}, err
 	}
@@ -437,18 +471,19 @@ func SendRequest[T any](ctx context.Context, path string, method string, queryPa
 
 	backoff := cfg.Backoff
 	if backoff <= 0 {
-		backoff = 1
+		backoff = 1000
 	}
 	var lastErr error
 
 	httpClient := SetupProxy(cfg)
-
 	for attempt := 0; attempt <= retries; attempt++ {
 		resp, err := httpClient.Do(req)
 		if err != nil {
 			lastErr = err
 			if attempt < retries && ShouldRetryRequest(err, method, retries-attempt, resp) {
-				time.Sleep(time.Duration(backoff*attempt) * time.Second)
+				if err := SleepContext(ctx, time.Duration(backoff*(attempt+1))*time.Millisecond); err != nil {
+					return &RestApiResponse[T]{}, err
+				}
 				continue
 			}
 			return &RestApiResponse[T]{}, NewNetworkError(fmt.Sprintf("Network error: %v", err))
@@ -489,7 +524,9 @@ func SendRequest[T any](ctx context.Context, path string, method string, queryPa
 
 		if resp.StatusCode >= 500 && resp.StatusCode <= 504 {
 			if attempt < retries {
-				time.Sleep(time.Duration(backoff*attempt) * time.Second)
+				if err := SleepContext(ctx, time.Duration(backoff*(attempt+1))*time.Millisecond); err != nil {
+					return &RestApiResponse[T]{}, err
+				}
 				continue
 			}
 			return &RestApiResponse[T]{}, fmt.Errorf("request failed after %d retries: received status %d", retries, resp.StatusCode)
@@ -542,6 +579,7 @@ func SendRequest[T any](ctx context.Context, path string, method string, queryPa
 // @param headerParams A map of header parameters to include in the request.
 // @param queryParams The query parameters for the request.
 // @param c The configuration containing API keys, secrets, and other settings.
+// @param signed A boolean indicating whether the request requires signing.
 // @return The prepared HTTP request or an error if preparation fails.
 func PrepareRequest(
 	ctx context.Context,
@@ -549,7 +587,8 @@ func PrepareRequest(
 	headerParams map[string]string,
 	queryParams url.Values,
 	bodyParams interface{},
-	c *ConfigurationRestAPI) (localVarRequest *http.Request, err error) {
+	c *ConfigurationRestAPI,
+	signed bool) (localVarRequest *http.Request, err error) {
 
 	reqURL, err := url.Parse(path)
 	if err != nil {
@@ -607,34 +646,36 @@ func PrepareRequest(
 		}
 	}
 
-	if c.ApiSecret != "" {
-		paramsToSign += "&timestamp=" + strconv.FormatInt(time.Now().UnixMilli(), 10)
+	if signed && c != nil {
+		if c.ApiSecret != "" {
+			paramsToSign += "&timestamp=" + strconv.FormatInt(time.Now().UnixMilli(), 10)
 
-		signer := hmac.New(sha256.New, []byte(c.ApiSecret))
-		signer.Write([]byte(paramsToSign))
-		signature := signer.Sum(nil)
-		if err != nil {
-			return nil, err
+			signer := hmac.New(sha256.New, []byte(c.ApiSecret))
+			signer.Write([]byte(paramsToSign))
+			signature := signer.Sum(nil)
+			if err != nil {
+				return nil, err
+			}
+			paramsToSign += "&signature=" + fmt.Sprintf("%x", signature)
 		}
-		paramsToSign += "&signature=" + fmt.Sprintf("%x", signature)
-	}
 
-	if c.PrivateKey != "" {
-		paramsToSign += "&timestamp=" + strconv.FormatInt(time.Now().UnixMilli(), 10)
+		if c.PrivateKey != "" {
+			paramsToSign += "&timestamp=" + strconv.FormatInt(time.Now().UnixMilli(), 10)
 
-		if c.Signer == nil {
-			key, err := LoadPrivateKey(c.PrivateKey, c.PrivateKeyPassphrase)
+			if c.Signer == nil {
+				key, err := LoadPrivateKey(c.PrivateKey, c.PrivateKeyPassphrase)
+				if err != nil {
+					panic(err)
+				}
+				c.Signer = &cryptoSigner{s: key}
+			}
+
+			signature, _ := c.Signer.Sign([]byte(paramsToSign))
 			if err != nil {
 				panic(err)
 			}
-			c.Signer = &cryptoSigner{s: key}
+			paramsToSign += "&signature=" + base64.StdEncoding.EncodeToString(signature)
 		}
-
-		signature, _ := c.Signer.Sign([]byte(paramsToSign))
-		if err != nil {
-			panic(err)
-		}
-		paramsToSign += "&signature=" + base64.StdEncoding.EncodeToString(signature)
 	}
 	reqURL.RawQuery = paramsToSign
 
@@ -698,11 +739,11 @@ func SetupProxy(cfg *ConfigurationRestAPI) *http.Client {
 		transport := BuildTransport(cfg.HTTPSAgent, cfg)
 		return &http.Client{
 			Transport: transport,
-			Timeout:   time.Duration(cfg.Timeout) * time.Millisecond,
+			Timeout:   cfg.Timeout,
 		}
 	}
 	return &http.Client{
-		Timeout: time.Duration(cfg.Timeout) * time.Millisecond,
+		Timeout: cfg.Timeout,
 	}
 }
 
@@ -1001,6 +1042,13 @@ func WsStreamsPlaceholder(stream string, params map[string]string) string {
 // @return A string representing the generated UUID.
 var GenerateUUID = func() string {
 	return uuid.New().String()
+}
+
+// GenerateIntUUID is a function that generates a new random int32 UUID.
+//
+// @return An int32 representing the generated UUID.
+var GenerateIntUUID = func() int32 {
+	return randpkg.Int32()
 }
 
 // Pretty converts a value to its pretty-printed JSON string representation.

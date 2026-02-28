@@ -2,8 +2,6 @@
 Binance Algo REST API
 
 OpenAPI Specification for the Binance Algo REST API
-
-API version: 1.0.0
 */
 
 package models
@@ -11,7 +9,7 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // checks if the TimeWeightedAveragePriceFutureAlgoResponse type satisfies the MappedNullable interface at compile time

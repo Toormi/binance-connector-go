@@ -2,8 +2,6 @@
 Binance Rebate REST API
 
 OpenAPI Specification for the Binance Rebate REST API
-
-API version: 1.0.0
 */
 
 package binancerebaterestapi
@@ -14,7 +12,7 @@ import (
 	"net/url"
 
 	"github.com/binance/binance-connector-go/clients/rebate/src/restapi/models"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // RebateAPIService RebateAPI Service
@@ -97,7 +95,7 @@ func (a *RebateAPIService) GetSpotRebateHistoryRecordsExecute(r ApiGetSpotRebate
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.GetSpotRebateHistoryRecordsResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.GetSpotRebateHistoryRecordsResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}

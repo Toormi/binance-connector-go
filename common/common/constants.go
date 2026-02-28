@@ -39,6 +39,9 @@ const (
 // Algo API URLs
 const AlgoRestApiProdUrl = "https://api.binance.com"
 
+// Alpha API URLs
+const AlphaRestApiProdUrl = "https://www.binance.com"
+
 // C2C API URLs
 const C2CRestApiProdUrl = "https://api.binance.com"
 
@@ -69,7 +72,7 @@ const DerivativesTradingUsdsFuturesWebsocketStreamsTestnetUrl = "wss://stream.bi
 
 // Derivatives Trading Options API URLs
 const DerivativesTradingOptionsRestApiProdUrl = "https://eapi.binance.com"
-const DerivativesTradingOptionsWebsocketStreamsProdUrl = "wss://nbstream.binance.com/eoptions/stream"
+const DerivativesTradingOptionsWebsocketStreamsProdUrl = "wss://fstream.binance.com"
 
 // Derivatives Trading Portfolio Margin API URLs
 const DerivativesTradingPortfolioMarginRestApiProdUrl = "https://papi.binance.com"

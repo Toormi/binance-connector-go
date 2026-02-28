@@ -5,6 +5,7 @@ All URIs are relative to *http://localhost*
 Method        | HTTP request  | Description
 ------------- | ------------- | -------------
 [**OpenOrdersCancelAll**](TradeAPI.md#OpenOrdersCancelAll) | /openOrders.cancelAll | WebSocket Cancel open orders
+[**OrderAmendKeepPriority**](TradeAPI.md#OrderAmendKeepPriority) | /order.amend.keepPriority | WebSocket Order Amend Keep Priority
 [**OrderCancel**](TradeAPI.md#OrderCancel) | /order.cancel | WebSocket Cancel order
 [**OrderCancelReplace**](TradeAPI.md#OrderCancelReplace) | /order.cancelReplace | WebSocket Cancel and replace order
 [**OrderListCancel**](TradeAPI.md#OrderListCancel) | /orderList.cancel | WebSocket Cancel Order list
@@ -37,7 +38,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -96,6 +97,90 @@ No authorization required
 [[Back to README]](../../../README.md)
 
 
+## OrderAmendKeepPriority
+
+> OrderAmendKeepPriorityResponse OrderAmendKeepPriority().Symbol(symbol).NewQty(newQty).Id(id).OrderId(orderId).OrigClientOrderId(origClientOrderId).NewClientOrderId(newClientOrderId).RecvWindow(recvWindow).Execute()
+
+WebSocket Order Amend Keep Priority
+
+
+### Example
+
+```go
+package main
+
+import (
+	"log"
+	"os"
+
+	models "github.com/binance/binance-connector-go/clients/spot"
+	"github.com/binance/binance-connector-go/common/v2/common"
+)
+
+func main() {
+	symbol := "BNBUSDT" // string | 
+	newQty := float32(1.0) // float32 | `newQty` must be greater than 0 and less than the order's quantity. 
+	id := "e9d6b4349871b40611412680b3445fac" // string | Unique WebSocket request ID. (optional)
+	orderId := int64(1) // int64 | `orderId`or`origClientOrderId`mustbesent (optional)
+	origClientOrderId := "origClientOrderId_example" // string | `orderId`or`origClientOrderId`mustbesent (optional)
+	newClientOrderId := "newClientOrderId_example" // string | The new client order ID for the order after being amended. <br> If not sent, one will be randomly generated. <br> It is possible to reuse the current clientOrderId by sending it as the `newClientOrderId`.  (optional)
+	recvWindow := float32(5000.0) // float32 | The value cannot be greater than `60000`. <br> Supports up to three decimal places of precision (e.g., 6000.346) so that microseconds may be specified. (optional)
+
+	configuration := common.NewConfigurationWebsocketApi(
+		common.WithWsApiBasePath(common.SpotWebsocketApiProdUrl),
+		common.WithWsApiKey("Your API Key"),
+		common.WithWsApiSecret("Your API Secret"),
+	)
+	wsClient := models.NewBinanceSpotClient(models.WithWebsocketAPI(configuration))
+
+	// Connect to WebSocket
+	err := wsClient.WebsocketAPI.Connect()
+	if err != nil {
+		log.Printf("Error connecting to WebSocket: %v\n", err)
+		return
+	}
+
+
+	resp, err := wsClient.WebsocketAPI.TradeAPI.OrderAmendKeepPriority().Symbol(symbol).NewQty(newQty).Id(id).OrderId(orderId).OrigClientOrderId(origClientOrderId).NewClientOrderId(newClientOrderId).RecvWindow(recvWindow).Execute()
+	if err != nil {
+		log.Println(os.Stderr, "Error when calling `TradeAPI.OrderAmendKeepPriority``: %v\n", err)
+		return
+	}
+
+	result, _ := json.MarshalIndent(resp.Typed, "", "  ")
+	log.Printf("Result: %s\n", result)
+
+	err = wsClient.WebsocketAPI.CloseWebSocketConnection()
+	if err != nil {
+		log.Printf("Error closing WebSocket connection: %v\n", err)
+		return
+	}
+}
+```
+
+### Path Parameters
+
+Name          | Type          | Description   | Notes
+------------- | ------------- | ------------- | -------------
+ **symbol** | **string** |  | 
+ **newQty** | **float32** | &#x60;newQty&#x60; must be greater than 0 and less than the order&#39;s quantity.  | 
+ **id** | **string** | Unique WebSocket request ID. | 
+ **orderId** | **int64** | &#x60;orderId&#x60;or&#x60;origClientOrderId&#x60;mustbesent | 
+ **origClientOrderId** | **string** | &#x60;orderId&#x60;or&#x60;origClientOrderId&#x60;mustbesent | 
+ **newClientOrderId** | **string** | The new client order ID for the order after being amended. &lt;br&gt; If not sent, one will be randomly generated. &lt;br&gt; It is possible to reuse the current clientOrderId by sending it as the &#x60;newClientOrderId&#x60;.  | 
+ **recvWindow** | **float32** | The value cannot be greater than &#x60;60000&#x60;. &lt;br&gt; Supports up to three decimal places of precision (e.g., 6000.346) so that microseconds may be specified. | 
+
+### Return type
+
+[**OrderAmendKeepPriorityResponse**](OrderAmendKeepPriorityResponse.md)
+
+### Authorization
+
+No authorization required
+
+[[Back to README]](../../../README.md)
+
+
 ## OrderCancel
 
 > OrderCancelResponse OrderCancel().Symbol(symbol).Id(id).OrderId(orderId).OrigClientOrderId(origClientOrderId).NewClientOrderId(newClientOrderId).CancelRestrictions(cancelRestrictions).RecvWindow(recvWindow).Execute()
@@ -113,15 +198,15 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
 	symbol := "BNBUSDT" // string | 
 	id := "e9d6b4349871b40611412680b3445fac" // string | Unique WebSocket request ID. (optional)
-	orderId := int64(1) // int64 | Cancel order by orderId (optional)
-	origClientOrderId := "origClientOrderId_example" // string |  (optional)
-	newClientOrderId := "newClientOrderId_example" // string | New ID for the canceled order. Automatically generated if not sent (optional)
+	orderId := int64(1) // int64 | `orderId`or`origClientOrderId`mustbesent (optional)
+	origClientOrderId := "origClientOrderId_example" // string | `orderId`or`origClientOrderId`mustbesent (optional)
+	newClientOrderId := "newClientOrderId_example" // string | The new client order ID for the order after being amended. <br> If not sent, one will be randomly generated. <br> It is possible to reuse the current clientOrderId by sending it as the `newClientOrderId`.  (optional)
 	cancelRestrictions := models.OrderCancelCancelRestrictionsParameterOnlyNew // OrderCancelCancelRestrictionsParameter |  (optional)
 	recvWindow := float32(5000.0) // float32 | The value cannot be greater than `60000`. <br> Supports up to three decimal places of precision (e.g., 6000.346) so that microseconds may be specified. (optional)
 
@@ -163,9 +248,9 @@ Name          | Type          | Description   | Notes
 ------------- | ------------- | ------------- | -------------
  **symbol** | **string** |  | 
  **id** | **string** | Unique WebSocket request ID. | 
- **orderId** | **int64** | Cancel order by orderId | 
- **origClientOrderId** | **string** |  | 
- **newClientOrderId** | **string** | New ID for the canceled order. Automatically generated if not sent | 
+ **orderId** | **int64** | &#x60;orderId&#x60;or&#x60;origClientOrderId&#x60;mustbesent | 
+ **origClientOrderId** | **string** | &#x60;orderId&#x60;or&#x60;origClientOrderId&#x60;mustbesent | 
+ **newClientOrderId** | **string** | The new client order ID for the order after being amended. &lt;br&gt; If not sent, one will be randomly generated. &lt;br&gt; It is possible to reuse the current clientOrderId by sending it as the &#x60;newClientOrderId&#x60;.  | 
  **cancelRestrictions** | [**OrderCancelCancelRestrictionsParameter**](OrderCancelCancelRestrictionsParameter.md) |  | 
  **recvWindow** | **float32** | The value cannot be greater than &#x60;60000&#x60;. &lt;br&gt; Supports up to three decimal places of precision (e.g., 6000.346) so that microseconds may be specified. | 
 
@@ -197,7 +282,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -213,7 +298,7 @@ func main() {
 	price := float32(1.0) // float32 |  (optional)
 	quantity := float32(1.0) // float32 |  (optional)
 	quoteOrderQty := float32(1.0) // float32 |  (optional)
-	newClientOrderId := "newClientOrderId_example" // string | New ID for the canceled order. Automatically generated if not sent (optional)
+	newClientOrderId := "newClientOrderId_example" // string | The new client order ID for the order after being amended. <br> If not sent, one will be randomly generated. <br> It is possible to reuse the current clientOrderId by sending it as the `newClientOrderId`.  (optional)
 	newOrderRespType := models.OrderCancelReplaceNewOrderRespTypeParameterAck // OrderCancelReplaceNewOrderRespTypeParameter |  (optional)
 	stopPrice := float32(1.0) // float32 |  (optional)
 	trailingDelta := float32(1.0) // float32 | See Trailing Stop order FAQ (optional)
@@ -276,7 +361,7 @@ Name          | Type          | Description   | Notes
  **price** | **float32** |  | 
  **quantity** | **float32** |  | 
  **quoteOrderQty** | **float32** |  | 
- **newClientOrderId** | **string** | New ID for the canceled order. Automatically generated if not sent | 
+ **newClientOrderId** | **string** | The new client order ID for the order after being amended. &lt;br&gt; If not sent, one will be randomly generated. &lt;br&gt; It is possible to reuse the current clientOrderId by sending it as the &#x60;newClientOrderId&#x60;.  | 
  **newOrderRespType** | [**OrderCancelReplaceNewOrderRespTypeParameter**](OrderCancelReplaceNewOrderRespTypeParameter.md) |  | 
  **stopPrice** | **float32** |  | 
  **trailingDelta** | **float32** | See Trailing Stop order FAQ | 
@@ -319,7 +404,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -327,7 +412,7 @@ func main() {
 	id := "e9d6b4349871b40611412680b3445fac" // string | Unique WebSocket request ID. (optional)
 	orderListId := int32(1) // int32 | Cancel order list by orderListId (optional)
 	listClientOrderId := "listClientOrderId_example" // string |  (optional)
-	newClientOrderId := "newClientOrderId_example" // string | New ID for the canceled order. Automatically generated if not sent (optional)
+	newClientOrderId := "newClientOrderId_example" // string | The new client order ID for the order after being amended. <br> If not sent, one will be randomly generated. <br> It is possible to reuse the current clientOrderId by sending it as the `newClientOrderId`.  (optional)
 	recvWindow := float32(5000.0) // float32 | The value cannot be greater than `60000`. <br> Supports up to three decimal places of precision (e.g., 6000.346) so that microseconds may be specified. (optional)
 
 	configuration := common.NewConfigurationWebsocketApi(
@@ -370,7 +455,7 @@ Name          | Type          | Description   | Notes
  **id** | **string** | Unique WebSocket request ID. | 
  **orderListId** | **int32** | Cancel order list by orderListId | 
  **listClientOrderId** | **string** |  | 
- **newClientOrderId** | **string** | New ID for the canceled order. Automatically generated if not sent | 
+ **newClientOrderId** | **string** | The new client order ID for the order after being amended. &lt;br&gt; If not sent, one will be randomly generated. &lt;br&gt; It is possible to reuse the current clientOrderId by sending it as the &#x60;newClientOrderId&#x60;.  | 
  **recvWindow** | **float32** | The value cannot be greater than &#x60;60000&#x60;. &lt;br&gt; Supports up to three decimal places of precision (e.g., 6000.346) so that microseconds may be specified. | 
 
 ### Return type
@@ -401,7 +486,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -513,7 +598,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -647,7 +732,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -779,7 +864,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -935,7 +1020,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -1069,7 +1154,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -1227,7 +1312,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -1239,7 +1324,7 @@ func main() {
 	price := float32(1.0) // float32 |  (optional)
 	quantity := float32(1.0) // float32 |  (optional)
 	quoteOrderQty := float32(1.0) // float32 |  (optional)
-	newClientOrderId := "newClientOrderId_example" // string | New ID for the canceled order. Automatically generated if not sent (optional)
+	newClientOrderId := "newClientOrderId_example" // string | The new client order ID for the order after being amended. <br> If not sent, one will be randomly generated. <br> It is possible to reuse the current clientOrderId by sending it as the `newClientOrderId`.  (optional)
 	newOrderRespType := models.OrderCancelReplaceNewOrderRespTypeParameterAck // OrderCancelReplaceNewOrderRespTypeParameter |  (optional)
 	stopPrice := float32(1.0) // float32 |  (optional)
 	trailingDelta := int32(1) // int32 | See [Trailing Stop order FAQ](faqs/trailing-stop-faq.md) (optional)
@@ -1296,7 +1381,7 @@ Name          | Type          | Description   | Notes
  **price** | **float32** |  | 
  **quantity** | **float32** |  | 
  **quoteOrderQty** | **float32** |  | 
- **newClientOrderId** | **string** | New ID for the canceled order. Automatically generated if not sent | 
+ **newClientOrderId** | **string** | The new client order ID for the order after being amended. &lt;br&gt; If not sent, one will be randomly generated. &lt;br&gt; It is possible to reuse the current clientOrderId by sending it as the &#x60;newClientOrderId&#x60;.  | 
  **newOrderRespType** | [**OrderCancelReplaceNewOrderRespTypeParameter**](OrderCancelReplaceNewOrderRespTypeParameter.md) |  | 
  **stopPrice** | **float32** |  | 
  **trailingDelta** | **int32** | See [Trailing Stop order FAQ](faqs/trailing-stop-faq.md) | 
@@ -1337,7 +1422,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -1350,7 +1435,7 @@ func main() {
 	price := float32(1.0) // float32 |  (optional)
 	quantity := float32(1.0) // float32 |  (optional)
 	quoteOrderQty := float32(1.0) // float32 |  (optional)
-	newClientOrderId := "newClientOrderId_example" // string | New ID for the canceled order. Automatically generated if not sent (optional)
+	newClientOrderId := "newClientOrderId_example" // string | The new client order ID for the order after being amended. <br> If not sent, one will be randomly generated. <br> It is possible to reuse the current clientOrderId by sending it as the `newClientOrderId`.  (optional)
 	newOrderRespType := models.OrderCancelReplaceNewOrderRespTypeParameterAck // OrderCancelReplaceNewOrderRespTypeParameter |  (optional)
 	stopPrice := float32(1.0) // float32 |  (optional)
 	trailingDelta := int32(1) // int32 | See [Trailing Stop order FAQ](faqs/trailing-stop-faq.md) (optional)
@@ -1408,7 +1493,7 @@ Name          | Type          | Description   | Notes
  **price** | **float32** |  | 
  **quantity** | **float32** |  | 
  **quoteOrderQty** | **float32** |  | 
- **newClientOrderId** | **string** | New ID for the canceled order. Automatically generated if not sent | 
+ **newClientOrderId** | **string** | The new client order ID for the order after being amended. &lt;br&gt; If not sent, one will be randomly generated. &lt;br&gt; It is possible to reuse the current clientOrderId by sending it as the &#x60;newClientOrderId&#x60;.  | 
  **newOrderRespType** | [**OrderCancelReplaceNewOrderRespTypeParameter**](OrderCancelReplaceNewOrderRespTypeParameter.md) |  | 
  **stopPrice** | **float32** |  | 
  **trailingDelta** | **int32** | See [Trailing Stop order FAQ](faqs/trailing-stop-faq.md) | 
@@ -1449,7 +1534,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -1460,7 +1545,7 @@ func main() {
 	id := "e9d6b4349871b40611412680b3445fac" // string | Unique WebSocket request ID. (optional)
 	timeInForce := models.OrderCancelReplaceTimeInForceParameterGtc // OrderCancelReplaceTimeInForceParameter |  (optional)
 	price := float32(1.0) // float32 |  (optional)
-	newClientOrderId := "newClientOrderId_example" // string | New ID for the canceled order. Automatically generated if not sent (optional)
+	newClientOrderId := "newClientOrderId_example" // string | The new client order ID for the order after being amended. <br> If not sent, one will be randomly generated. <br> It is possible to reuse the current clientOrderId by sending it as the `newClientOrderId`.  (optional)
 	newOrderRespType := models.OrderCancelReplaceNewOrderRespTypeParameterAck // OrderCancelReplaceNewOrderRespTypeParameter |  (optional)
 	icebergQty := float32(1.0) // float32 |  (optional)
 	strategyId := int64(1) // int64 | Arbitrary numeric value identifying the order within an order strategy. (optional)
@@ -1511,7 +1596,7 @@ Name          | Type          | Description   | Notes
  **id** | **string** | Unique WebSocket request ID. | 
  **timeInForce** | [**OrderCancelReplaceTimeInForceParameter**](OrderCancelReplaceTimeInForceParameter.md) |  | 
  **price** | **float32** |  | 
- **newClientOrderId** | **string** | New ID for the canceled order. Automatically generated if not sent | 
+ **newClientOrderId** | **string** | The new client order ID for the order after being amended. &lt;br&gt; If not sent, one will be randomly generated. &lt;br&gt; It is possible to reuse the current clientOrderId by sending it as the &#x60;newClientOrderId&#x60;.  | 
  **newOrderRespType** | [**OrderCancelReplaceNewOrderRespTypeParameter**](OrderCancelReplaceNewOrderRespTypeParameter.md) |  | 
  **icebergQty** | **float32** |  | 
  **strategyId** | **int64** | Arbitrary numeric value identifying the order within an order strategy. | 
@@ -1547,7 +1632,7 @@ import (
 	"os"
 
 	models "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {
@@ -1559,7 +1644,7 @@ func main() {
 	computeCommissionRates := false // bool | Default: `false` <br> See [Commissions FAQ](faqs/commission_faq.md#test-order-diferences) to learn more. (optional)
 	timeInForce := models.OrderCancelReplaceTimeInForceParameterGtc // OrderCancelReplaceTimeInForceParameter |  (optional)
 	price := float32(1.0) // float32 |  (optional)
-	newClientOrderId := "newClientOrderId_example" // string | New ID for the canceled order. Automatically generated if not sent (optional)
+	newClientOrderId := "newClientOrderId_example" // string | The new client order ID for the order after being amended. <br> If not sent, one will be randomly generated. <br> It is possible to reuse the current clientOrderId by sending it as the `newClientOrderId`.  (optional)
 	newOrderRespType := models.OrderCancelReplaceNewOrderRespTypeParameterAck // OrderCancelReplaceNewOrderRespTypeParameter |  (optional)
 	icebergQty := float32(1.0) // float32 |  (optional)
 	strategyId := int64(1) // int64 | Arbitrary numeric value identifying the order within an order strategy. (optional)
@@ -1611,7 +1696,7 @@ Name          | Type          | Description   | Notes
  **computeCommissionRates** | **bool** | Default: &#x60;false&#x60; &lt;br&gt; See [Commissions FAQ](faqs/commission_faq.md#test-order-diferences) to learn more. | 
  **timeInForce** | [**OrderCancelReplaceTimeInForceParameter**](OrderCancelReplaceTimeInForceParameter.md) |  | 
  **price** | **float32** |  | 
- **newClientOrderId** | **string** | New ID for the canceled order. Automatically generated if not sent | 
+ **newClientOrderId** | **string** | The new client order ID for the order after being amended. &lt;br&gt; If not sent, one will be randomly generated. &lt;br&gt; It is possible to reuse the current clientOrderId by sending it as the &#x60;newClientOrderId&#x60;.  | 
  **newOrderRespType** | [**OrderCancelReplaceNewOrderRespTypeParameter**](OrderCancelReplaceNewOrderRespTypeParameter.md) |  | 
  **icebergQty** | **float32** |  | 
  **strategyId** | **int64** | Arbitrary numeric value identifying the order within an order strategy. | 

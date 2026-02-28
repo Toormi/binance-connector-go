@@ -2,8 +2,6 @@
 Binance Mining REST API
 
 OpenAPI Specification for the Binance Mining REST API
-
-API version: 1.0.0
 */
 
 package binanceminingrestapi
@@ -14,7 +12,7 @@ import (
 	"net/url"
 
 	"github.com/binance/binance-connector-go/clients/mining/src/restapi/models"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // MiningAPIService MiningAPI Service
@@ -91,7 +89,7 @@ func (a *MiningAPIService) AccountListExecute(r ApiAccountListRequest) (*common.
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.AccountListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.AccountListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -134,7 +132,7 @@ func (a *MiningAPIService) AcquiringAlgorithmExecute(r ApiAcquiringAlgorithmRequ
 	localVarQueryParams := url.Values{}
 	localVarBodyParameters := make(map[string]interface{})
 
-	resp, err := SendRequest[models.AcquiringAlgorithmResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.AcquiringAlgorithmResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -177,7 +175,7 @@ func (a *MiningAPIService) AcquiringCoinnameExecute(r ApiAcquiringCoinnameReques
 	localVarQueryParams := url.Values{}
 	localVarBodyParameters := make(map[string]interface{})
 
-	resp, err := SendRequest[models.AcquiringCoinnameResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.AcquiringCoinnameResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -256,7 +254,7 @@ func (a *MiningAPIService) CancelHashrateResaleConfigurationExecute(r ApiCancelH
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.CancelHashrateResaleConfigurationResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.CancelHashrateResaleConfigurationResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -390,7 +388,7 @@ func (a *MiningAPIService) EarningsListExecute(r ApiEarningsListRequest) (*commo
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.EarningsListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.EarningsListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -524,7 +522,7 @@ func (a *MiningAPIService) ExtraBonusListExecute(r ApiExtraBonusListRequest) (*c
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.ExtraBonusListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.ExtraBonusListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -536,7 +534,6 @@ type ApiHashrateResaleDetailRequest struct {
 	ctx        context.Context
 	ApiService *MiningAPIService
 	configId   *int64
-	userName   *string
 	pageIndex  *int64
 	pageSize   *int64
 	recvWindow *int64
@@ -545,12 +542,6 @@ type ApiHashrateResaleDetailRequest struct {
 // Mining ID 168
 func (r ApiHashrateResaleDetailRequest) ConfigId(configId int64) ApiHashrateResaleDetailRequest {
 	r.configId = &configId
-	return r
-}
-
-// Mining account test
-func (r ApiHashrateResaleDetailRequest) UserName(userName string) ApiHashrateResaleDetailRequest {
-	r.userName = &userName
 	return r
 }
 
@@ -583,7 +574,6 @@ https://developers.binance.com/docs/mining/rest-api/Hashrate-Resale-Detail
 
 @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @param configId -  Mining ID 168
-@param userName -  Mining account test
 @param pageIndex -  Page number, empty default first page, starting from 1
 @param pageSize -  Min 10,Max 200
 @param recvWindow -
@@ -609,12 +599,8 @@ func (a *MiningAPIService) HashrateResaleDetailExecute(r ApiHashrateResaleDetail
 	if r.configId == nil {
 		return nil, common.ReportError("configId is required and must be specified")
 	}
-	if r.userName == nil {
-		return nil, common.ReportError("userName is required and must be specified")
-	}
 
 	common.ParameterAddToHeaderOrQuery(localVarQueryParams, "configId", r.configId, "form", "")
-	common.ParameterAddToHeaderOrQuery(localVarQueryParams, "userName", r.userName, "form", "")
 	if r.pageIndex != nil {
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "pageIndex", r.pageIndex, "form", "")
 	}
@@ -625,7 +611,7 @@ func (a *MiningAPIService) HashrateResaleDetailExecute(r ApiHashrateResaleDetail
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.HashrateResaleDetailResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.HashrateResaleDetailResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -701,7 +687,7 @@ func (a *MiningAPIService) HashrateResaleListExecute(r ApiHashrateResaleListRequ
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.HashrateResaleListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.HashrateResaleListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -828,7 +814,7 @@ func (a *MiningAPIService) HashrateResaleRequestExecute(r ApiHashrateResaleReque
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.HashrateResaleRequestResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.HashrateResaleRequestResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -939,7 +925,7 @@ func (a *MiningAPIService) MiningAccountEarningExecute(r ApiMiningAccountEarning
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.MiningAccountEarningResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.MiningAccountEarningResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -1030,7 +1016,7 @@ func (a *MiningAPIService) RequestForDetailMinerListExecute(r ApiRequestForDetai
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.RequestForDetailMinerListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.RequestForDetailMinerListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -1153,7 +1139,7 @@ func (a *MiningAPIService) RequestForMinerListExecute(r ApiRequestForMinerListRe
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.RequestForMinerListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.RequestForMinerListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -1232,7 +1218,7 @@ func (a *MiningAPIService) StatisticListExecute(r ApiStatisticListRequest) (*com
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "recvWindow", r.recvWindow, "form", "")
 	}
 
-	resp, err := SendRequest[models.StatisticListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.StatisticListResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, true)
 	if err != nil || resp == nil {
 		return nil, err
 	}

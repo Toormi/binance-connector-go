@@ -17,7 +17,7 @@ import (
 
 	client "github.com/binance/binance-connector-go/clients/convert"
 	"github.com/binance/binance-connector-go/clients/convert/src/restapi/models"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 	"github.com/stretchr/testify/require"
 )
 
@@ -300,7 +300,7 @@ func Test_binanceconvertrestapi_TradeAPIService(t *testing.T) {
 
 	t.Run("Test TradeAPIService PlaceLimitOrder Success", func(t *testing.T) {
 
-		mockedJSON := `{"quoteId":"12415572564","ratio":"38163.7","inverseRatio":"0.0000262","validTimestamp":1623319461670,"toAmount":"3816.37","fromAmount":"0.1"}`
+		mockedJSON := `{"orderId":1603680255057330400,"status":"PROCESS"}`
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/sapi/v1/convert/limit/placeOrder", r.URL.Path)
 			require.Equal(t, "baseAsset_example", r.URL.Query().Get("baseAsset"))

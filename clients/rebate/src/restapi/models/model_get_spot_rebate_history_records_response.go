@@ -2,8 +2,6 @@
 Binance Rebate REST API
 
 OpenAPI Specification for the Binance Rebate REST API
-
-API version: 1.0.0
 */
 
 package models
@@ -11,7 +9,7 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // checks if the GetSpotRebateHistoryRecordsResponse type satisfies the MappedNullable interface at compile time

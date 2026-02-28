@@ -2,8 +2,6 @@
 Binance Spot WebSocket API
 
 OpenAPI Specifications for the Binance Spot WebSocket API  API documents:   - [Github web-socket-api documentation file](https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-api.md)   - [General API information for web-socket-api on website](https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information)
-
-API version: 1.0.0
 */
 
 package models
@@ -11,7 +9,7 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // checks if the OrderCancelReplaceResponse type satisfies the MappedNullable interface at compile time

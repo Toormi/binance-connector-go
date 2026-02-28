@@ -2,8 +2,6 @@
 Binance Spot REST API
 
 OpenAPI Specifications for the Binance Spot REST API  API documents:   - [Github rest-api documentation file](https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md)   - [General API information for rest-api on website](https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-api-information)
-
-API version: 1.0.0
 */
 
 package binancespotrestapi
@@ -13,10 +11,10 @@ import (
 	"net/url"
 	"runtime"
 
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
-// RestAPIClient manages communication with the Binance Spot REST API API v1.0.0
+// RestAPIClient manages communication with the Binance Spot REST API API v1.4.0
 type RestAPIClient struct {
 	cfg *common.ConfigurationRestAPI
 
@@ -41,7 +39,7 @@ func NewRestAPIClient(cfg *common.ConfigurationRestAPI) *RestAPIClient {
 	if customHeaders == nil {
 		customHeaders = make(map[string]string)
 	}
-	customHeaders["User-Agent"] = "binance-spot/1.0.0 (Go/" + runtime.Version() + "; " + runtime.GOOS + "; " + runtime.GOARCH + ")"
+	customHeaders["User-Agent"] = "binance-spot/1.4.0 (Go/" + runtime.Version() + "; " + runtime.GOOS + "; " + runtime.GOARCH + ")"
 	cfg.CustomHeaders = customHeaders
 	c := &RestAPIClient{cfg: cfg}
 
@@ -66,8 +64,8 @@ func NewRestAPIClient(cfg *common.ConfigurationRestAPI) *RestAPIClient {
 // @param config *common.ConfigurationRestAPI - The configuration for the REST API client
 // @return *common.RestApiResponse[T] - The API response containing the typed data
 // @return error - An error if the request fails
-func SendRequest[T any](ctx context.Context, path string, method string, queryParams url.Values, bodyParams interface{}, config *common.ConfigurationRestAPI) (*common.RestApiResponse[T], error) {
-	resp, err := common.SendRequest[T](ctx, path, method, queryParams, bodyParams, config)
+func SendRequest[T any](ctx context.Context, path string, method string, queryParams url.Values, bodyParams interface{}, config *common.ConfigurationRestAPI, signed bool) (*common.RestApiResponse[T], error) {
+	resp, err := common.SendRequest[T](ctx, path, method, queryParams, bodyParams, config, signed)
 	if err != nil {
 		return resp, err
 	}

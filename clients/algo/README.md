@@ -51,8 +51,8 @@ import (
 	"encoding/json"
 	"log"
 
-	client "github.com/binance/binance-connector-go/clients/algo"
-	"github.com/binance/binance-connector-go/common/common"
+	client "github.com/binance/binance-connector-go/clients/algo/src"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 func main() {

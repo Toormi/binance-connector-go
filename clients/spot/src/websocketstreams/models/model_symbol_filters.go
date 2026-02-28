@@ -2,8 +2,6 @@
 Binance Spot WebSocket Streams
 
 OpenAPI Specifications for the Binance Spot WebSocket Streams  API documents:   - [Github web-socket-streams documentation file](https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md)   - [General API information for web-socket-streams on website](https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams)
-
-API version: 1.0.0
 */
 
 package models
@@ -12,7 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // SymbolFilters - struct for SymbolFilters

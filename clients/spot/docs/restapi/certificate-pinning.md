@@ -16,8 +16,8 @@ import (
 	"net/http"
 	"time"
 
-	client "github.com/binance/binance-connector-go/clients/spot"
-	"github.com/binance/binance-connector-go/common/common"
+	client "github.com/binance/binance-connector-go/clients/spot/src"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // Replace this with the base64(SHA256(subjectPublicKeyInfo)) value you pin to.

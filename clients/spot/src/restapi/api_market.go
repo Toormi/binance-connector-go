@@ -2,8 +2,6 @@
 Binance Spot REST API
 
 OpenAPI Specifications for the Binance Spot REST API  API documents:   - [Github rest-api documentation file](https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md)   - [General API information for rest-api on website](https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-api-information)
-
-API version: 1.0.0
 */
 
 package binancespotrestapi
@@ -14,7 +12,7 @@ import (
 	"net/url"
 
 	"github.com/binance/binance-connector-go/clients/spot/src/restapi/models"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 )
 
 // MarketAPIService MarketAPI Service
@@ -112,7 +110,7 @@ func (a *MarketAPIService) AggTradesExecute(r ApiAggTradesRequest) (*common.Rest
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "limit", r.limit, "form", "")
 	}
 
-	resp, err := SendRequest[models.AggTradesResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.AggTradesResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -168,7 +166,7 @@ func (a *MarketAPIService) AvgPriceExecute(r ApiAvgPriceRequest) (*common.RestAp
 
 	common.ParameterAddToHeaderOrQuery(localVarQueryParams, "symbol", r.symbol, "form", "")
 
-	resp, err := SendRequest[models.AvgPriceResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.AvgPriceResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -245,7 +243,7 @@ func (a *MarketAPIService) DepthExecute(r ApiDepthRequest) (*common.RestApiRespo
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "symbolStatus", r.symbolStatus, "form", "")
 	}
 
-	resp, err := SendRequest[models.DepthResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.DepthResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -312,7 +310,7 @@ func (a *MarketAPIService) GetTradesExecute(r ApiGetTradesRequest) (*common.Rest
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "limit", r.limit, "form", "")
 	}
 
-	resp, err := SendRequest[models.GetTradesResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.GetTradesResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -390,7 +388,7 @@ func (a *MarketAPIService) HistoricalTradesExecute(r ApiHistoricalTradesRequest)
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "fromId", r.fromId, "form", "")
 	}
 
-	resp, err := SendRequest[models.HistoricalTradesResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.HistoricalTradesResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -501,7 +499,7 @@ func (a *MarketAPIService) KlinesExecute(r ApiKlinesRequest) (*common.RestApiRes
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "limit", r.limit, "form", "")
 	}
 
-	resp, err := SendRequest[models.KlinesResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.KlinesResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -598,7 +596,7 @@ func (a *MarketAPIService) TickerExecute(r ApiTickerRequest) (*common.RestApiRes
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "symbolStatus", r.symbolStatus, "form", "")
 	}
 
-	resp, err := SendRequest[models.TickerResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.TickerResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -685,7 +683,7 @@ func (a *MarketAPIService) Ticker24hrExecute(r ApiTicker24hrRequest) (*common.Re
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "symbolStatus", r.symbolStatus, "form", "")
 	}
 
-	resp, err := SendRequest[models.Ticker24hrResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.Ticker24hrResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -762,7 +760,7 @@ func (a *MarketAPIService) TickerBookTickerExecute(r ApiTickerBookTickerRequest)
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "symbolStatus", r.symbolStatus, "form", "")
 	}
 
-	resp, err := SendRequest[models.TickerBookTickerResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.TickerBookTickerResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -839,7 +837,7 @@ func (a *MarketAPIService) TickerPriceExecute(r ApiTickerPriceRequest) (*common.
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "symbolStatus", r.symbolStatus, "form", "")
 	}
 
-	resp, err := SendRequest[models.TickerPriceResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.TickerPriceResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -937,7 +935,7 @@ func (a *MarketAPIService) TickerTradingDayExecute(r ApiTickerTradingDayRequest)
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "symbolStatus", r.symbolStatus, "form", "")
 	}
 
-	resp, err := SendRequest[models.TickerTradingDayResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.TickerTradingDayResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}
@@ -1048,7 +1046,7 @@ func (a *MarketAPIService) UiKlinesExecute(r ApiUiKlinesRequest) (*common.RestAp
 		common.ParameterAddToHeaderOrQuery(localVarQueryParams, "limit", r.limit, "form", "")
 	}
 
-	resp, err := SendRequest[models.UiKlinesResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg)
+	resp, err := SendRequest[models.UiKlinesResponse](r.ctx, localVarPath, localVarHTTPMethod, localVarQueryParams, localVarBodyParameters, a.client.cfg, false)
 	if err != nil || resp == nil {
 		return nil, err
 	}

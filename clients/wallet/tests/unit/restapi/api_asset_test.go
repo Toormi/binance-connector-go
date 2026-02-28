@@ -17,7 +17,7 @@ import (
 
 	client "github.com/binance/binance-connector-go/clients/wallet"
 	"github.com/binance/binance-connector-go/clients/wallet/src/restapi/models"
-	"github.com/binance/binance-connector-go/common/common"
+	"github.com/binance/binance-connector-go/common/v2/common"
 	"github.com/stretchr/testify/require"
 )
 
@@ -80,7 +80,7 @@ func Test_binancewalletrestapi_AssetAPIService(t *testing.T) {
 
 	t.Run("Test AssetAPIService AssetDividendRecord Success", func(t *testing.T) {
 
-		mockedJSON := `{"rows":[{"id":1637366104,"amount":"10.00000000","asset":"BHFT","divTime":1563189166000,"enInfo":"BHFT distribution","tranId":2968885920},{"id":1631750237,"amount":"10.00000000","asset":"BHFT","divTime":1563189165000,"enInfo":"BHFT distribution","tranId":2968885920}],"total":2}`
+		mockedJSON := `{"rows":[{"id":1637366104,"amount":"10.00000000","asset":"BHFT","divTime":1563189166000,"enInfo":"BHFT distribution","tranId":2968885920,"direction":1},{"id":1631750237,"amount":"10.00000000","asset":"BHFT","divTime":1563189165000,"enInfo":"BHFT distribution","tranId":2968885920,"direction":1}],"total":2}`
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/sapi/v1/asset/assetDividend", r.URL.Path)
 			w.Header().Set("Content-Type", "application/json")
@@ -128,6 +128,152 @@ func Test_binancewalletrestapi_AssetAPIService(t *testing.T) {
 		)
 
 		resp, err := apiClient.RestApi.AssetAPI.AssetDividendRecord(context.Background()).Execute()
+
+		require.Error(t, err)
+		require.Nil(t, resp)
+	})
+
+	t.Run("Test AssetAPIService DustConvert Success", func(t *testing.T) {
+
+		mockedJSON := `{"totalTransfered":"3.5971223","totalServiceCharge":"0.0794964","transferResult":[{"tranId":2987331510,"fromAsset":"USDT","amount":"1","transferedAmount":"3.5971223","serviceChargeAmount":"0.0794964","operateTime":1765212029749}]}`
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, "/sapi/v1/asset/dust-convert/convert", r.URL.Path)
+			require.Equal(t, "asset_example", r.URL.Query().Get("asset"))
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(mockedJSON))
+		}))
+		defer mockServer.Close()
+
+		var expected models.DustConvertResponse
+		err := json.Unmarshal([]byte(mockedJSON), &expected)
+		require.NoError(t, err)
+
+		configuration := common.NewConfigurationRestAPI()
+		configuration.BasePath = mockServer.URL
+
+		apiClient := client.NewBinanceWalletClient(
+			client.WithRestAPI(configuration),
+		)
+
+		resp, err := apiClient.RestApi.AssetAPI.DustConvert(context.Background()).Asset("asset_example").Execute()
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.Equal(
+			t,
+			reflect.TypeOf(&common.RestApiResponse[models.DustConvertResponse]{}),
+			reflect.TypeOf(resp),
+		)
+		require.Equal(t, reflect.TypeOf(models.DustConvertResponse{}), reflect.TypeOf(resp.Data))
+		require.Equal(t, 200, resp.Status)
+		require.Equal(t, expected, resp.Data)
+	})
+
+	t.Run("Test AssetAPIService DustConvert Missing Required Params", func(t *testing.T) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+		defer mockServer.Close()
+
+		configuration := common.NewConfigurationRestAPI()
+		configuration.BasePath = mockServer.URL
+
+		apiClient := client.NewBinanceWalletClient(
+			client.WithRestAPI(configuration),
+		)
+
+		resp, err := apiClient.RestApi.AssetAPI.DustConvert(context.Background()).Execute()
+
+		require.Error(t, err)
+		require.Nil(t, resp)
+	})
+
+	t.Run("Test AssetAPIService DustConvert Server Error", func(t *testing.T) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}))
+		defer mockServer.Close()
+
+		configuration := common.NewConfigurationRestAPI()
+		configuration.BasePath = mockServer.URL
+		configuration.Retries = 1
+		configuration.Backoff = 1
+
+		apiClient := client.NewBinanceWalletClient(
+			client.WithRestAPI(configuration),
+		)
+
+		resp, err := apiClient.RestApi.AssetAPI.DustConvert(context.Background()).Execute()
+
+		require.Error(t, err)
+		require.Nil(t, resp)
+	})
+
+	t.Run("Test AssetAPIService DustConvertibleAssets Success", func(t *testing.T) {
+
+		mockedJSON := `{"dribbletPercentage":"0.02","totalTransferQuotaAssetAmount":"0.7899968","totalTransferTargetAssetAmount":"0.7899968","dribbletBase":"10","details":[{"asset":"AR","assetFullName":"AR","amountFree":"0.00856","exchange":"0.00073616","toQuotaAssetAmount":"0.036808","toTargetAssetAmount":"0.036808","toTargetAssetOffExchange":"0.03607184"},{"asset":"BNB","assetFullName":"BNB","amountFree":"0.00082768","exchange":"0.01506378","toQuotaAssetAmount":"0.7531888","toTargetAssetAmount":"0.7531888","toTargetAssetOffExchange":"0.73812502"}]}`
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, "/sapi/v1/asset/dust-convert/query-convertible-assets", r.URL.Path)
+			require.Equal(t, "targetAsset_example", r.URL.Query().Get("targetAsset"))
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(mockedJSON))
+		}))
+		defer mockServer.Close()
+
+		var expected models.DustConvertibleAssetsResponse
+		err := json.Unmarshal([]byte(mockedJSON), &expected)
+		require.NoError(t, err)
+
+		configuration := common.NewConfigurationRestAPI()
+		configuration.BasePath = mockServer.URL
+
+		apiClient := client.NewBinanceWalletClient(
+			client.WithRestAPI(configuration),
+		)
+
+		resp, err := apiClient.RestApi.AssetAPI.DustConvertibleAssets(context.Background()).TargetAsset("targetAsset_example").Execute()
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.Equal(
+			t,
+			reflect.TypeOf(&common.RestApiResponse[models.DustConvertibleAssetsResponse]{}),
+			reflect.TypeOf(resp),
+		)
+		require.Equal(t, reflect.TypeOf(models.DustConvertibleAssetsResponse{}), reflect.TypeOf(resp.Data))
+		require.Equal(t, 200, resp.Status)
+		require.Equal(t, expected, resp.Data)
+	})
+
+	t.Run("Test AssetAPIService DustConvertibleAssets Missing Required Params", func(t *testing.T) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+		defer mockServer.Close()
+
+		configuration := common.NewConfigurationRestAPI()
+		configuration.BasePath = mockServer.URL
+
+		apiClient := client.NewBinanceWalletClient(
+			client.WithRestAPI(configuration),
+		)
+
+		resp, err := apiClient.RestApi.AssetAPI.DustConvertibleAssets(context.Background()).Execute()
+
+		require.Error(t, err)
+		require.Nil(t, resp)
+	})
+
+	t.Run("Test AssetAPIService DustConvertibleAssets Server Error", func(t *testing.T) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}))
+		defer mockServer.Close()
+
+		configuration := common.NewConfigurationRestAPI()
+		configuration.BasePath = mockServer.URL
+		configuration.Retries = 1
+		configuration.Backoff = 1
+
+		apiClient := client.NewBinanceWalletClient(
+			client.WithRestAPI(configuration),
+		)
+
+		resp, err := apiClient.RestApi.AssetAPI.DustConvertibleAssets(context.Background()).Execute()
 
 		require.Error(t, err)
 		require.Nil(t, resp)
